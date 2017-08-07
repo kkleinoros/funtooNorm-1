@@ -338,28 +338,41 @@ setMethod(f="show",
 )
 
 setGeneric(name="getLogSigA",
-           def=function(object) standardGeneric("getLogSigA")
+           def=function(object,type) standardGeneric("getLogSigA")
 )
 setMethod("getLogSigA",
           signature = "SampleSet",
-          definition = function(object){
-              return(rbind(object@signal$AIGrn,
-                           object@signal$AIRed,
-                           object@signal$AII,
-                           object@signal$AchrY))
+          definition = function(object,type="signal"){
+            if (type=="predmat"){
+              return(rbind(object@predmat$AIGrn,
+                           object@predmat$AIRed,
+                           object@predmat$AII,
+                           object@predmat$AchrY))}else{
+                             return(rbind(object@signal$AIGrn,
+                                          object@signal$AIRed,
+                                          object@signal$AII,
+                                          object@signal$AchrY))
+                             
+                           }
           }
 )
-
 setGeneric(name="getLogSigB",
-           def=function(object) standardGeneric("getLogSigB")
+           def=function(object,type) standardGeneric("getLogSigB")
 )
 setMethod("getLogSigB",
           signature = "SampleSet",
-          definition = function(object){
-              return(rbind(object@signal$BIGrn,
-                           object@signal$BIRed,
-                           object@signal$BII,
-                           object@signal$BchrY))
+          definition = function(object,type="signal"){
+            if (type=="predmat"){
+              return(rbind(object@predmat$BIGrn,
+                           object@predmat$BIRed,
+                           object@predmat$BII,
+                           object@predmat$BchrY))}else{
+                             return(rbind(object@signal$BIGrn,
+                                          object@signal$BIRed,
+                                          object@signal$BII,
+                                          object@signal$BchrY))
+                             
+                           }
           }
 )
 
@@ -433,8 +446,8 @@ setGeneric(name="getRawBeta",
 setMethod("getRawBeta",
           signature = "SampleSet",
           definition = function(object,offset){
-              mat=calcBeta(getLogSigA(object),
-                           getLogSigB(object),
+              mat=calcBeta(getLogSigA(object,type="signal"),
+                           getLogSigB(object,type="signal"),
                            offset)
               colnames(mat)=object@sampleNames
               rownames(mat)=getPositionNames(object)
@@ -467,8 +480,8 @@ setMethod("getNormBeta",
               if(length(object@predmat)==0){
                   stop("WARNING: please call funtooNorm")
                   }
-              mat=calcBeta(getLogSigA(object),
-                           getLogSigB(object),
+              mat=calcBeta(getLogSigA(object,type="predmat"),
+                           getLogSigB(object,type="predmat"),
                            offset)
               colnames(mat)=object@sampleNames
               rownames(mat)=getPositionNames(object)
@@ -500,7 +513,7 @@ setMethod("getNormM",
               if(length(object@predmat)==0){
                   stop("WARNING: please call funtooNorm")
                   }
-              mat=getLogSigB(object)-getLogSigA(object)
+              mat=getLogSigB(object,type="predmat")-getLogSigA(object,type="predmat")
               colnames(mat)=object@sampleNames
               rownames(mat)=getPositionNames(object)
               return(mat[!grepl("^rs",rownames(mat)),])
@@ -533,7 +546,7 @@ setMethod("getSnpM",
               if(length(object@predmat)==0){
                   stop("WARNING: please call funtooNorm")
                   }
-              mat=getLogSigA(object)-getLogSigB(object)
+              mat=getLogSigA(object,type="signal")-getLogSigB(objecttype="signal")
               colnames(mat)=object@sampleNames
               rownames(mat)=getPositionNames(object)
               return(mat[grepl("^rs",rownames(mat)),])
@@ -674,7 +687,7 @@ setMethod("plotValidationGraph",
     
     for(i in names(object@quantiles)){
     plotValidate(object@quantiles[[i]],object@qntllist,
-                 object@ctl.covmat,numcomp,i)
+                 object@ctl.covmat,numcomp,i,type.fits)
     }
     
     
